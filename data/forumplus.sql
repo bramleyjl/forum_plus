@@ -19,8 +19,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `forumplus-max`
 --
-CREATE DATABASE IF NOT EXISTS `forumplus-max` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
-USE `forumplus-max`;
+CREATE DATABASE IF NOT EXISTS `jbramley-forum` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `jbramley-forum`;
 
 -- --------------------------------------------------------
 

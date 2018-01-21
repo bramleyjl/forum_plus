@@ -1,6 +1,7 @@
 'use strict';
 let mysql = require( 'mysql' );
 let slug = require( 'slug' );
+let moment = require('moment');
 
 let User = require( '../models/user.js' );
 let Session = require( '../models/session.js' );
@@ -49,6 +50,11 @@ module.exports = function ( opts ) {
     };
 
     this.createUser = function ( name ) {
+      var newUser = { name: name, created: moment().format('YYYY-MM-DD H:mm:ss') }
+      cxn.query("INSERT INTO `users` SET ?", [newUser], ( err, results ) => {
+        if (err) throw err;
+        console.log(results.insertId)
+      })
         /*
             TODO
             Insert a row into `users` with "now" as a timestamp and `name` as
@@ -57,6 +63,11 @@ module.exports = function ( opts ) {
     };
 
     this.createSession = function ( userId ) {
+      var newToken = { token: Session.generateToken(), user: userId, created: moment().format('YYYY-MM-DD H:mm:ss') }
+      cxn.query("INSERT INTO `sessions` SET ?", [newToken], ( err, results ) => {
+        if (err) throw err;
+        console.log(results.insertId)
+      });
         /*
             TODO
             Generate a random token (see `Session.generateToken()`) and insert

@@ -1,10 +1,10 @@
 {
-    "port" : 80,
+    "port" : 8080,
     "db" : {
-        "host"     : "my-db-host.net",
+        "host"     : "db.max.vu",
         "port"     : 3306,
-        "user"     : "root",
-        "pass"     : "root",
-        "database" : "forumplus-myname"
+        "user"     : "acc-backend",
+        "pass"     : "nebula-art",
+        "database" : "jbramley-forum"
     }
 }

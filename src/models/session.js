@@ -23,9 +23,11 @@ function Session ( db, attrs ) {
 };
 
 Session.generateToken = function (
-    length = 48,
-    pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    _,
+    __
 ) {
+    let pool = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let length = 48;
     if ( typeof( length ) !== 'number' )
         throw new Error( `Invalid token length: ${length}.` );
     let token = '';

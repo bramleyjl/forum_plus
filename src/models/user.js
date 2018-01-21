@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 let _ = require( '../helpers/validate.js' );
 
 module.exports = function User ( db, attrs ) {
