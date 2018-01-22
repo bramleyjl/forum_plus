@@ -53,26 +53,15 @@ module.exports = function ( opts ) {
       var newUser = { name: name, created: moment().format('YYYY-MM-DD H:mm:ss') }
       cxn.query("INSERT INTO `users` SET ?", [newUser], ( err, results ) => {
         if (err) throw err;
-        console.log(results.insertId)
       })
-        /*
-            TODO
-            Insert a row into `users` with "now" as a timestamp and `name` as
-            its name.
-        */
     };
 
     this.createSession = function ( userId ) {
       var newToken = { token: Session.generateToken(), user: userId, created: moment().format('YYYY-MM-DD H:mm:ss') }
-      cxn.query("INSERT INTO `sessions` SET ?", [newToken], ( err, results ) => {
+      return cxn.query("INSERT INTO `sessions` SET ?", [newToken], ( err, results ) => {
         if (err) throw err;
-        console.log(results.insertId)
+        return (results.insertId)
       });
-        /*
-            TODO
-            Generate a random token (see `Session.generateToken()`) and insert
-            it with a timestamp ("now") into `sessions`.
-        */
     };
 
     this.findUser = function ( name ) {

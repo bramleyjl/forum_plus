@@ -18,18 +18,22 @@ module.exports = function ( db ) {
     } );
 
     router.post( '/login', function ( req, res ) {
-      var username = req.body.username
-      db.query("SELECT * FROM `users` WHERE `name` = ?", [username] ).then( ( user ) => {
-          if ( user === undefined ) {
-            //call createSession method
-            console.log(user[0].name, user[0].id)
-            db.createSession(user[0].id);
-          }
-          else {
-            //call create User method, then create a session using its newly created Id
-            db.createUser(req.body.username);
-          }
-        });
+
+      db.query("SELECT * FROM `users` WHERE `name` = ?", [req.body.username])
+      .then( (user) => {
+        return user
+      })
+      .then( (user) => {
+        console.log(user)
+        return db.createSession(user[0].id) 
+      })
+      .then ( (session) => {
+        console.log(session.values[0].user, session.values[0].token)
+      })
+      .catch( (err) => {
+        console.log("Error: " + err);
+      } )
+
       res.send(views.index());
         /*
             TODO
@@ -38,7 +42,7 @@ module.exports = function ( db ) {
             Create a session for them and tuck its `token` into a cookie.
             Redirect to root page.
         */
-    } );
+    });
 
     router.get( '/logout', function ( req, res ) {
       db.createUser("John");
