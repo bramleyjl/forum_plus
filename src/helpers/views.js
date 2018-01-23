@@ -47,7 +47,7 @@ module.exports = {
     createThread : function ( user ) {
         return Mustache.render( views.base, {
             title : "ForumPlus",
-            user : null,
+            user : user,
             content : Mustache.render( views.createThread, {
                 user : user
             } )

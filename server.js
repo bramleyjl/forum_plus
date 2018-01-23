@@ -18,14 +18,20 @@ app.use( bodyParser.urlencoded({ extended: true }) );
 app.use( cookieParser() );
 
 app.use( function ( req, res, next ) {
-    /*
-        TODO
-        If there's a session cookie provided, look it up.
-        If it exists, attach the user to `req` for controller methods to use.
-        Otherwise, ignore or delete it.
-        (Be sure to call next() when you're done.)
-    */
+  req.user = null;
+  if ( !req.cookies.login_token ) {
+    console.error( 'no token exists' );
+    return next();
+  }
+  db.authenticateToken( req.cookies.login_token ).then( ( users ) => {
+    if ( !users.length ) {
+      console.error( 'no user with that token' );
+      return next();
+    }
+    req.user = users.pop();
+    console.log(req.user)
     next();
+  } );
 } );
 
 app.use( '/public', express.static( './public' ) );

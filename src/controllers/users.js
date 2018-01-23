@@ -7,6 +7,7 @@ module.exports = function ( db ) {
     var router = express.Router();
 
     router.get( '/:name', function ( req, res ) {
+      
         /*
             If there's no user logged in, redirect to login page.
             Retrieve the user with the name in `req.params`.

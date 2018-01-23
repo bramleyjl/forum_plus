@@ -41,43 +41,44 @@ module.exports = function ( opts ) {
     };
 
     this.getRecentThreads = function ( count ) {
-        /*
-            TODO
-            Get the `count` most-recent `thread`s, as well as each of their
-            author's names and an aggregate `count()` of how many messages
-            it has.
-        */
+        let q = "\
+            select\
+                `threads`.*,\
+                `users`.`name` as creatorName,\
+                count( `messages`.`id` ) as messageCount\
+            from `threads`\
+            join `users` on `threads`.`creator` = `users`.`id`\
+            join `messages` on `messages`.`thread` = `threads`.`id`\
+            group by `messages`.`thread`\
+            order by created desc\
+            limit ?;\
+        ";
+        return this.query( q, [ count ] );
     };
 
     this.createUser = function ( name ) {
       var newUser = { name: name, created: moment().format('YYYY-MM-DD H:mm:ss') }
-      cxn.query("INSERT INTO `users` SET ?", [newUser], ( err, results ) => {
-        if (err) throw err;
-      })
+      return this.query("INSERT INTO `users` SET ?", [newUser])
     };
 
     this.createSession = function ( userId ) {
       var newToken = { token: Session.generateToken(), user: userId, created: moment().format('YYYY-MM-DD H:mm:ss') }
-      return cxn.query("INSERT INTO `sessions` SET ?", [newToken], ( err, results ) => {
-        if (err) throw err;
-        return (results.insertId)
+      return this.query("INSERT INTO `sessions` SET ?", [newToken]).then ( () => {
+        return newToken.token;
       });
     };
 
     this.findUser = function ( name ) {
-        /*
-            TODO
-            Get a user by name.
-            Always return just one (or none).
-        */
+      return this.query("SELECT * FROM `users` WHERE `name` = ?", [name] );
     };
 
     this.authenticateToken = function ( token ) {
-        /*
-            TODO
-            Given a token, return the user its associated with, or nothing if
-            it doesn't exist.
-        */
+      return this.query( "\
+          select `users`.*\
+          from `sessions`\
+          join `users` on `users`.`id` = `sessions`.`user`\
+          where `sessions`.`token` = ?;\
+      ", [ token ] );
     };
 
     this.getThread = function ( slug ) {
@@ -112,17 +113,18 @@ module.exports = function ( opts ) {
     };
 
     this.createThread = function ( userId, title ) {
-        /*
-            TODO
-            Insert a row into the `threads` table.
-        */
+      var newThread = {  
+        title : title,
+        slug : slug(title),
+        creator : userId, 
+        created : moment().format('YYYY-MM-DD H:mm:ss')}
+      return this.query("INSERT INTO `threads` SET ?", [newThread], ( err, results ) => {
+        if (err) throw err;
+      });
     };
 
     this.createMessage = function ( threadId, authorId, msgBody ) {
-        /*
-            TODO
-            Insert a row into the `messages` table.
-        */
+      console.log( threadId, authorId, msgBody)
     };
 
     this.deleteSessions = function ( userId ) {

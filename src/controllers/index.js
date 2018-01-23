@@ -9,51 +9,58 @@ module.exports = function ( db ) {
     var router = express.Router();
 
     router.get( '/', function ( req, res ) {
-      res.send( views.login() );
-        /*
-            TODO
-            If no user logged in, show `login` view.
-            Otherwise, get recent threads and pass to `index` view.
-        */
+      if ( req.user ) {
+        db.getRecentThreads( 10 ).then( ( threads ) => {
+          res.send( views.index( req.user, threads ) );
+        } ).catch( ( err ) => {
+          res.send( views.error( err ) );
+        } )
+      } else {
+        res.send( views.login() );
+      }
     } );
 
+    router.get( '/login', function ( req, res) {
+      res.redirect('/')
+    })
+
     router.post( '/login', function ( req, res ) {
-
-      db.query("SELECT * FROM `users` WHERE `name` = ?", [req.body.username])
-      .then( (user) => {
-        return user
-      })
-      .then( (user) => {
-        console.log(user)
-        return db.createSession(user[0].id) 
-      })
-      .then ( (session) => {
-        console.log(session.values[0].user, session.values[0].token)
-      })
-      .catch( (err) => {
-        console.log("Error: " + err);
-      } )
-
-      res.send(views.index());
-        /*
-            TODO
-            Try to find the username named in the POST body.
-            If not exists, create them.
-            Create a session for them and tuck its `token` into a cookie.
-            Redirect to root page.
-        */
+      function checkName(username) { 
+        db.query("SELECT * FROM `users` WHERE `name` = ?", [username])
+          .then( (user) => {
+            if (user.length !== 0) {
+              return user;
+            } else {
+              return db.createUser( req.body.username ).then( () => {
+                return db.findUser( req.body.username );
+              } );
+            }
+          })
+          .then( (user) => {
+            return db.createSession(user.pop().id); 
+          })
+          .then ( (token) => {
+            console.log(token)
+            res.cookie('login_token', token);
+            return db.getRecentThreads( 10 )
+          }).then( ( threads ) => {
+            res.redirect('/');
+          })
+          .catch( (err) => {
+            console.log("Error: " + err);
+        })
+      }
+      checkName(req.body.username);
     });
 
     router.get( '/logout', function ( req, res ) {
-      db.createUser("John");
-      res.send(views.index());
-        /*
-            TODO
-            Clear the session cookie.
-            Delete all of this user's sessions.
-            Redirect to login page.
-        */
-    } );
+      db.query("SELECT `user` FROM `sessions` WHERE `token` = ?", [req.cookies.login_token])
+        .then( (userId) => {
+          db.query("DELETE FROM `sessions` WHERE `user` = ?", [userId[0].user])
+          res.clearCookie('login_token');
+          res.send( views.login() );
+        })
+    });
 
     return router;
 

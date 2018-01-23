@@ -6,24 +6,24 @@ let markdown = require( 'markdown' ).markdown;
 
 module.exports = function ( db ) {
 
-    let router = express.Router();
+    var router = express.Router();
 
     router.get( '/create-thread', function ( req, res ) {
-        /*
-            TODO
-            If there's no user logged in, redirect to login page.
-            Show the `createThread` view.
-        */
+      if ( req.user ) {
+        res.send( views.createThread(req.user) );
+      } else {
+        res.send( views.login() );
+      }
     } );
 
     router.post( '/new', function ( req, res ) {
-        /*
-            TODO
-            If there's no user logged in, redirect to login page.
-            Create the thread, redirect to error if there's a problem.
-            Use that thread's ID to create a message.
-            Redirect to /threads/:thread-slug.
-        */
+      if ( req.user ) {
+        db.createThread( req.user.id, req.body.title ).then( (thread) => {
+          console.log(thread)
+        })      
+      } else {
+        res.send( views.login() );
+      }
     } );
 
     router.get( '/:slug', function ( req, res ) {
