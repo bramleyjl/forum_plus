@@ -112,16 +112,16 @@ module.exports = function ( opts ) {
     };
 
     this.getThreadMessages = function ( threadId ) {
-      return this.query("select `messages`.*, `users`.`name` AS `authorName` from `messages` join `users` on `messages`.`author` = `users`.`id` where `thread` = ?", [threadId] )
+      return this.query("\
+                        select\
+                          `messages`.*,\
+                          `users`.`name` AS `authorName`\
+                        from `messages`\
+                        join `users` on `messages`.`author` = `users`.`id`\
+                        where `thread` = ?", [threadId] )
       .then( (messages) => {
         return messages
       })
-
-        /*
-            TODO
-            Retrieve a list of messages belonging to a particular thread,
-            but also including the names of each message's author.
-        */
     };
 
     this.createThread = function ( userId, title ) {
