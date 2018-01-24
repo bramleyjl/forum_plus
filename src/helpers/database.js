@@ -63,9 +63,13 @@ module.exports = function ( opts ) {
 
     this.createSession = function ( userId ) {
       var newToken = { token: Session.generateToken(), user: userId, created: moment().format('YYYY-MM-DD H:mm:ss') }
-      return this.query("INSERT INTO `sessions` SET ?", [newToken]).then ( () => {
+      return this.query("INSERT INTO `sessions` SET ?", [newToken])
+      .then ( () => {
         return newToken.token;
-      });
+      })
+      .catch( ( err ) => {
+          res.send( views.error( err ) );
+      } )
     };
 
     this.findUser = function ( name ) {
@@ -82,10 +86,13 @@ module.exports = function ( opts ) {
     };
 
     this.getThread = function ( slug ) {
-        /*
-            TODO
-            Retrieve a thread by slug.
-        */
+      return this.query("SELECT * FROM `threads` WHERE `slug` = ?", [slug])
+      .then ( (thread) => {
+          return thread
+      } )
+      .catch( ( err ) => {
+          res.send( views.error( err ) );
+      } )
     };
 
     this.getUser = function ( slug ) {
@@ -105,6 +112,11 @@ module.exports = function ( opts ) {
     };
 
     this.getThreadMessages = function ( threadId ) {
+      return this.query("select `messages`.*, `users`.`name` AS `authorName` from `messages` join `users` on `messages`.`author` = `users`.`id` where `thread` = ?", [threadId] )
+      .then( (messages) => {
+        return messages
+      })
+
         /*
             TODO
             Retrieve a list of messages belonging to a particular thread,
@@ -120,11 +132,17 @@ module.exports = function ( opts ) {
         created : moment().format('YYYY-MM-DD H:mm:ss')}
       return this.query("INSERT INTO `threads` SET ?", [newThread], ( err, results ) => {
         if (err) throw err;
+        return results
       });
     };
 
     this.createMessage = function ( threadId, authorId, msgBody ) {
-      console.log( threadId, authorId, msgBody)
+      var newMessage = {
+        thread : threadId,
+        author : authorId,
+        created : moment().format('YYYY-MM-DD H:mm:ss'),
+        body : msgBody }
+      return this.query("INSERT INTO `messages` SET ?", [newMessage])
     };
 
     this.deleteSessions = function ( userId ) {

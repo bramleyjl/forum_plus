@@ -29,7 +29,6 @@ app.use( function ( req, res, next ) {
       return next();
     }
     req.user = users.pop();
-    console.log(req.user)
     next();
   } );
 } );

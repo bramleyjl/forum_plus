@@ -8,6 +8,10 @@ module.exports = function ( db ) {
 
     var router = express.Router();
 
+    router.get('/', function ( req, res ) {
+      res.redirect( '/' );
+    })
+
     router.get( '/create-thread', function ( req, res ) {
       if ( req.user ) {
         res.send( views.createThread(req.user) );
@@ -19,14 +23,34 @@ module.exports = function ( db ) {
     router.post( '/new', function ( req, res ) {
       if ( req.user ) {
         db.createThread( req.user.id, req.body.title ).then( (thread) => {
-          console.log(thread)
+          db.createMessage(thread.insertId, req.user.id, req.body.message)
+          res.redirect( '/' );
         })      
       } else {
-        res.send( views.login() );
+        res.redirect( '/' );
       }
     } );
 
     router.get( '/:slug', function ( req, res ) {
+      if ( req.user ) {
+        var threadData = [];
+        db.getThread( req.params.slug )
+          .then( (thread) => {
+            if (thread.length !== 0) {
+              threadData.push(thread[0])
+              return db.getThreadMessages(thread[0].id)
+            } else {
+              res.send( views.error(404) );
+              return
+            } 
+          })
+          .then( (messages) => {
+              res.send( views.viewThread(req.user, threadData.pop(), messages) );
+            })
+          
+      } else {
+        res.redirect( '/' );
+      }
         /*
             TODO
             If there's no user logged in, redirect to login page.

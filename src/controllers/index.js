@@ -40,7 +40,6 @@ module.exports = function ( db ) {
             return db.createSession(user.pop().id); 
           })
           .then ( (token) => {
-            console.log(token)
             res.cookie('login_token', token);
             return db.getRecentThreads( 10 )
           }).then( ( threads ) => {
