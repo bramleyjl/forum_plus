@@ -7,7 +7,7 @@ module.exports = function ( db ) {
   var router = express.Router();
 
   router.get( '/:id', function( req, res ) {
-    res.send("THIS IS A GET")
+    res.redirect( '/' );
   } )
 
   router.post( '/:id/delete', function( req, res ) {

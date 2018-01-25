@@ -44,24 +44,26 @@ module.exports = {
         } );
     },
 
-    createThread : function ( user ) {
+    createThread : function ( user, error = null ) {
         return Mustache.render( views.base, {
             title : "ForumPlus",
             user : user,
             content : Mustache.render( views.createThread, {
-                user : user
+                user : user,
+                error : error
             } )
         } );
     },
 
-    viewThread : function ( user, thread, messages ) {
+    viewThread : function ( user, thread, messages, error = null ) {
         return Mustache.render( views.base, {
             title : thread.title,
             user : user,
             content : Mustache.render( views.viewThread, {
                 user : user,
                 thread : thread,
-                messages : messages
+                messages : messages,
+                error : error
             } )
         } )
     },

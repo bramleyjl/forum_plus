@@ -15,6 +15,10 @@ a:hover {
     color: #ee7755;
 }
 
+div.error {
+  color: #cc3311;
+}
+
 body > header a {
     text-transform: uppercase;
     color: #dbb323;

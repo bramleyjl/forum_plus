@@ -17,6 +17,11 @@
             </div>
         </div>
     {{/messages}}
+    {{#error}}
+      <div class="error">
+        <h3>Error! {{error}}</h3>
+      </div>
+    {{/error}}
     <h2>Reply</h2>
     <div class="reply">
         <form method="POST" action="/threads/{{thread.slug}}">

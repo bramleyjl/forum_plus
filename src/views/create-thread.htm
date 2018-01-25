@@ -1,4 +1,11 @@
 <h1>Create a new thread</h1>
+
+{{#error}}
+  <div class="error">
+    <h3>Error! {{error}}</h3>
+  </div>
+{{/error}}
+
 <form method="POST" action="/threads/new">
     <div>
         <label for="title">Title</label>
