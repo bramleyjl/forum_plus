@@ -23,9 +23,9 @@ module.exports = function ( opts ) {
     */
 
     cxn.connect ( function ( err ) {
-        if ( err )
-            throw new Error( "Couldn't connect to database." )
-        console.log( "Connected to database." );
+      if ( err )
+        throw new Error( "Couldn't connect to database." )
+      console.log( "Connected to database." );
     } );
 
     /*
@@ -33,27 +33,25 @@ module.exports = function ( opts ) {
         (You may use `cxn.query()` directly, if you'd like.)
     */
     this.query = function ( query, binds ) {
-        return new Promise( ( resolve, reject ) => {
-            cxn.query( query, binds, ( err, results, fields ) => {
-                err ? reject( err ) : resolve( results, fields );
-            } );
+      return new Promise( ( resolve, reject ) => {
+        cxn.query( query, binds, ( err, results, fields ) => {
+          err ? reject( err ) : resolve( results, fields );
         } );
+      } );
     };
 
     this.getRecentThreads = function ( count ) {
-        let q = "\
-            select\
-                `threads`.*,\
-                `users`.`name` as creatorName,\
-                count( `messages`.`id` ) as messageCount\
-            from `threads`\
-            join `users` on `threads`.`creator` = `users`.`id`\
-            join `messages` on `messages`.`thread` = `threads`.`id`\
-            group by `messages`.`thread`\
-            order by created desc\
-            limit ?;\
-        ";
-        return this.query( q, [ count ] );
+      return this.query(
+        "SELECT\
+          `threads`.*,\
+          `users`.`name` AS creatorName,\
+          COUNT( `messages`.`id` ) AS messageCount\
+        FROM `threads`\
+        JOIN `users` ON `threads`.`creator` = `users`.`id`\
+        JOIN `messages` ON `messages`.`thread` = `threads`.`id`\
+        GROUP BY `messages`.`thread`\
+        ORDER BY created desc\
+        LIMIT ?", [ count ] );
     };
 
     this.createUser = function ( name ) {
@@ -68,7 +66,7 @@ module.exports = function ( opts ) {
         return newToken.token;
       })
       .catch( ( err ) => {
-          res.send( views.error( err ) );
+        res.send( views.error( err ) );
       } )
     };
 
@@ -78,47 +76,46 @@ module.exports = function ( opts ) {
 
     this.authenticateToken = function ( token ) {
       return this.query( "\
-          select `users`.*\
-          from `sessions`\
-          join `users` on `users`.`id` = `sessions`.`user`\
-          where `sessions`.`token` = ?;\
+        SELECT `users`.*\
+        FROM `sessions`\
+        JOIN `users` ON `users`.`id` = `sessions`.`user`\
+        WHERE `sessions`.`token` = ?;\
       ", [ token ] );
     };
 
     this.getThread = function ( slug ) {
       return this.query("SELECT * FROM `threads` WHERE `slug` = ?", [slug])
       .then ( (thread) => {
-          return thread
+        return thread
       } )
       .catch( ( err ) => {
-          res.send( views.error( err ) );
+        res.send( views.error( err ) );
       } )
     };
 
     this.getUser = function ( slug ) {
-        /*
-            TODO
-            Retrieve a user by slug.
-        */
+      return this.query("SELECT * FROM `users` WHERE `name` =?", [slug])
     };
 
     this.getUserMessages = function ( userId ) {
-        /*
-            TODO
-            Retrieve a list of messages belonging to a particular user,
-            but also including the names and slugs of the threads each belongs
-            to.
-        */
+      return this.query(
+        "SELECT\
+        `messages`.*,\
+          `threads`.`title` AS `threadTitle`,\
+          `threads`.`slug` AS `threadSlug`\
+        FROM `messages`\
+        JOIN `threads` ON `messages`.`thread` = `threads`.`id`\
+        WHERE `author` =?", [userId] )
     };
 
     this.getThreadMessages = function ( threadId ) {
-      return this.query("\
-                        select\
-                          `messages`.*,\
-                          `users`.`name` AS `authorName`\
-                        from `messages`\
-                        join `users` on `messages`.`author` = `users`.`id`\
-                        where `thread` = ?", [threadId] )
+      return this.query(
+        "SELECT\
+          `messages`.*,\
+          `users`.`name` AS `authorName`\
+        FROM `messages`\
+        JOIN `users` ON `messages`.`author` = `users`.`id`\
+        WHERE `thread` = ?", [threadId] )
       .then( (messages) => {
         return messages
       })
@@ -146,14 +143,11 @@ module.exports = function ( opts ) {
     };
 
     this.deleteSessions = function ( userId ) {
-        /*
-            TODO
-            Delete all sessions for a user.
-        */
+      return this.query("DELETE FROM `sessions` WHERE `user` = ?", [userId])
     }
 
     this.disconnect = function ( callback ) {
-        cxn.end( callback );
+      cxn.end( callback );
     };
 
     /*

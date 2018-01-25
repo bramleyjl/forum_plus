@@ -55,7 +55,7 @@ module.exports = function ( db ) {
     router.get( '/logout', function ( req, res ) {
       db.query("SELECT `user` FROM `sessions` WHERE `token` = ?", [req.cookies.login_token])
         .then( (userId) => {
-          db.query("DELETE FROM `sessions` WHERE `user` = ?", [userId[0].user])
+          db.deleteSessions(userId[0].user)
           res.clearCookie('login_token');
           res.send( views.login() );
         })
