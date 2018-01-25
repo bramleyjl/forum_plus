@@ -5,6 +5,7 @@ let cookieParser = require( 'cookie-parser' );
 let Database = require( './src/helpers/database.js' );
 
 let config = require( './config.json' );
+let MessagesController = require( './src/controllers/messages.js')
 let IndexController = require( './src/controllers/index.js' );
 let ThreadsController = require( './src/controllers/threads.js' );
 let UsersController = require( './src/controllers/users.js' );
@@ -38,6 +39,7 @@ app.use( '/public', express.static( './public' ) );
 app.use( '/', IndexController( db ) );
 app.use( '/threads', ThreadsController( db ) );
 app.use( '/users', UsersController( db ) );
+app.use( '/messages', MessagesController( db ) );
 
 app.use( ( err, req, res, next ) => {
     /*

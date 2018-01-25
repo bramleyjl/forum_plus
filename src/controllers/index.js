@@ -10,7 +10,7 @@ module.exports = function ( db ) {
 
     router.get( '/', function ( req, res ) {
       if ( req.user ) {
-        db.getRecentThreads( 10 ).then( ( threads ) => {
+        db.getRecentThreads( 30 ).then( ( threads ) => {
           res.send( views.index( req.user, threads ) );
         } ).catch( ( err ) => {
           res.send( views.error( err ) );
@@ -41,7 +41,7 @@ module.exports = function ( db ) {
           })
           .then ( (token) => {
             res.cookie('login_token', token);
-            return db.getRecentThreads( 10 )
+            return db.getRecentThreads( 10 );
           }).then( ( threads ) => {
             res.redirect('/');
           })
@@ -57,7 +57,7 @@ module.exports = function ( db ) {
         .then( (userId) => {
           db.deleteSessions(userId[0].user)
           res.clearCookie('login_token');
-          res.send( views.login() );
+          res.redirect( '/' );
         })
     });
 

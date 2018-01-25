@@ -21,10 +21,18 @@ module.exports = function ( db ) {
   } );
 
   router.post( '/new', function ( req, res ) {
+    var threadData = []
     if ( req.user ) {
-      db.createThread( req.user.id, req.body.title ).then( (thread) => {
-        db.createMessage(thread.insertId, req.user.id, markdown.toHTML(req.body.message))
-        res.redirect( '/' );
+      db.createThread( req.user.id, req.body.title )
+      .then( (thread) => {
+        threadData.push(thread)
+        return db.getThread(threadData[0])      
+      })
+      .then( (thread) => {
+        return db.createMessage(thread[0].id, req.user.id, markdown.toHTML(req.body.message))
+      })
+      .then ( (message) => {
+        res.redirect( `/threads/${threadData.pop()}`)
       })      
     } else {
       res.redirect( '/' );

@@ -5,10 +5,15 @@
             <a name="{{id}}"></a>
             <div class="info">
                 <a href="/users/{{authorName}}">{{authorName}}</a>
-                Posted {{created}}
+                <div title="{{created}}">Posted {{humanTime}}</div>
             </div>
             <div class="body">
                 {{{body}}}
+            </div>
+            <div class="Delete">
+              <form method="POST" action="/messages/{{id}}/delete">
+                <div><input type="submit" value="delete"></div>
+              </form>
             </div>
         </div>
     {{/messages}}

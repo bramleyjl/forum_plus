@@ -67,7 +67,7 @@ module.exports = function ( opts ) {
       })
       .catch( ( err ) => {
         res.send( views.error( err ) );
-      } )
+      })
     };
 
     this.findUser = function ( name ) {
@@ -85,12 +85,6 @@ module.exports = function ( opts ) {
 
     this.getThread = function ( slug ) {
       return this.query("SELECT * FROM `threads` WHERE `slug` = ?", [slug])
-      .then ( (thread) => {
-        return thread
-      } )
-      .catch( ( err ) => {
-        res.send( views.error( err ) );
-      } )
     };
 
     this.getUser = function ( slug ) {
@@ -116,9 +110,6 @@ module.exports = function ( opts ) {
         FROM `messages`\
         JOIN `users` ON `messages`.`author` = `users`.`id`\
         WHERE `thread` = ?", [threadId] )
-      .then( (messages) => {
-        return messages
-      })
     };
 
     this.createThread = function ( userId, title ) {
@@ -126,11 +117,15 @@ module.exports = function ( opts ) {
         title : title,
         slug : slug(title),
         creator : userId, 
-        created : moment().format('YYYY-MM-DD H:mm:ss')}
-      return this.query("INSERT INTO `threads` SET ?", [newThread], ( err, results ) => {
-        if (err) throw err;
-        return results
-      });
+        created : moment().format('YYYY-MM-DD H:mm:ss'),
+        humanTime: moment().format('lll')}
+      return this.query("INSERT INTO `threads` SET ?", [newThread])
+      .then ( () => {
+        return newThread.slug;
+      })
+      .catch( ( err ) => {
+        res.send( views.error( err ) );
+      })
     };
 
     this.createMessage = function ( threadId, authorId, msgBody ) {
@@ -138,13 +133,32 @@ module.exports = function ( opts ) {
         thread : threadId,
         author : authorId,
         created : moment().format('YYYY-MM-DD H:mm:ss'),
+        humanTime: moment().format('lll'),
         body : msgBody }
       return this.query("INSERT INTO `messages` SET ?", [newMessage])
     };
 
+    this.getMessageAuthor = function ( messageId ) {
+      return this.query("SELECT * FROM `messages` WHERE `id` = ?", [messageId])
+    }
+
+    this.deleteMessage = function ( messageId ) {
+      var messageThread = this.query(
+        "SELECT\
+          `messages`.*,\
+          `threads`.`slug`\
+          FROM `messages`\
+          JOIN `threads`\
+          ON `messages`.`thread` = `threads`.`id`\
+          WHERE `messages`.`id` = ?", [messageId])
+      return this.query("DELETE FROM `messages` WHERE `id` = ?", [messageId]).then( () => {
+        return messageThread
+      })
+    };
+
     this.deleteSessions = function ( userId ) {
       return this.query("DELETE FROM `sessions` WHERE `user` = ?", [userId])
-    }
+    };
 
     this.disconnect = function ( callback ) {
       cxn.end( callback );
