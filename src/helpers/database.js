@@ -112,9 +112,8 @@ module.exports = function ( opts ) {
       var newThread = {  
         title : title,
         slug : slug(title),
-        creator : userId, 
-        created : moment().format('YYYY-MM-DD H:mm:ss'),
-        humanTime: moment().format('lll')}
+        created : moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
+        creator : userId}
       return this.query("INSERT INTO `threads` SET ?", [newThread])
       .then ( () => {
         return newThread.slug;
@@ -128,8 +127,7 @@ module.exports = function ( opts ) {
       var newMessage = {
         thread : threadId,
         author : authorId,
-        created : moment().format('YYYY-MM-DD H:mm:ss'),
-        humanTime: moment().format('lll'),
+        created: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
         body : msgBody }
       return this.query("INSERT INTO `messages` SET ?", [newMessage])
     };

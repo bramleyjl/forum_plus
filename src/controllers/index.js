@@ -2,6 +2,7 @@
 let express = require( 'express' );
 let views = require( '../helpers/views.js' );
 let humanTime = require( 'human-time' );
+let moment = require('moment');
 let markdown = require( 'markdown' ).markdown;
 
 module.exports = function ( db ) {
@@ -11,6 +12,9 @@ module.exports = function ( db ) {
     router.get( '/', function ( req, res ) {
       if ( req.user ) {
         db.getRecentThreads( 30 ).then( ( threads ) => {
+          for (var i in threads) {
+          threads[i]['humanTime'] = moment(threads[i]['created']).fromNow();
+          }
           res.send( views.index( req.user, threads ) );
         } ).catch( ( err ) => {
           res.send( views.error( err ) );

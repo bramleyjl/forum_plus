@@ -2,6 +2,7 @@
 let express = require( 'express' );
 let views = require( '../helpers/views.js' );
 let humanTime = require( 'human-time' );
+let moment = require('moment');
 let markdown = require( 'markdown' ).markdown;
 
 module.exports = function ( db ) {
@@ -59,8 +60,10 @@ module.exports = function ( db ) {
       })
       .then( (messages) => {
         for (var i in messages) {
-          if (messages[i]['author'] === req.user.id)
+          if (messages[i]['author'] === req.user.id) {
             messages[i]['delete'] = true;
+          }
+          messages[i]['humanTime'] = moment(messages[i]['created']).fromNow();
         }
         res.send( views.viewThread(req.user, threadData.pop(), messages) );
       })
