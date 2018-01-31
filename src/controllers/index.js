@@ -26,13 +26,13 @@ module.exports = function ( db ) {
 
     router.post( '/login', function ( req, res ) {
       function checkName(username) { 
-        db.query("SELECT * FROM `users` WHERE `name` = ?", [username])
+        db.getUser( req.body.username )
           .then( (user) => {
             if (user.length !== 0) {
               return user;
             } else {
               return db.createUser( req.body.username ).then( () => {
-                return db.findUser( req.body.username );
+                return db.getUser( req.body.username );
               } );
             }
           })
@@ -41,8 +41,6 @@ module.exports = function ( db ) {
           })
           .then ( (token) => {
             res.cookie('login_token', token);
-            return db.getRecentThreads( 10 );
-          }).then( ( threads ) => {
             res.redirect('/');
           })
           .catch( (err) => {
@@ -53,9 +51,10 @@ module.exports = function ( db ) {
     });
 
     router.get( '/logout', function ( req, res ) {
-      db.query("SELECT `user` FROM `sessions` WHERE `token` = ?", [req.cookies.login_token])
+      db.authenticateToken( req.cookies.login_token )
         .then( (userId) => {
-          db.deleteSessions(userId[0].user)
+          console.log(userId[0].id)
+          db.deleteSessions(userId[0].id)
           res.clearCookie('login_token');
           res.redirect( '/' );
         })

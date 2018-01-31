@@ -70,10 +70,6 @@ module.exports = function ( opts ) {
       })
     };
 
-    this.findUser = function ( name ) {
-      return this.query("SELECT * FROM `users` WHERE `name` = ?", [name] );
-    };
-
     this.authenticateToken = function ( token ) {
       return this.query( "\
         SELECT `users`.*\

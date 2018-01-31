@@ -13,7 +13,6 @@ module.exports = function ( db ) {
         .then( (user) => {
           if (user.length !== 0) {
             userData.push(user[0])
-            console.log(user, user[0].id)
             return db.getUserMessages(user[0].id)
           } else {
             res.send( views.error("This user doesn't appear to exist.") );
