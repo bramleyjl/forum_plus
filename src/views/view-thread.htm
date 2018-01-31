@@ -10,11 +10,13 @@
             <div class="body">
                 {{{body}}}
             </div>
-            <div class="Delete">
-              <form method="POST" action="/messages/{{id}}/delete">
-                <div><input type="submit" value="delete"></div>
-              </form>
-            </div>
+            {{#delete}}
+              <div class="Delete">
+                  <form method="POST" action="/messages/{{id}}/delete">
+                    <div><input type="submit" value="delete"></div>
+                  </form>
+              </div>
+            {{/delete}}
         </div>
     {{/messages}}
     {{#error}}

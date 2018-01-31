@@ -1,4 +1,4 @@
-'use strict';
+  'use strict';
 let express = require( 'express' );
 let views = require( '../helpers/views.js' );
 let humanTime = require( 'human-time' );
@@ -58,6 +58,10 @@ module.exports = function ( db ) {
         } 
       })
       .then( (messages) => {
+        for (var i in messages) {
+          if (messages[i]['author'] === req.user.id)
+            messages[i]['delete'] = true;
+        }
         res.send( views.viewThread(req.user, threadData.pop(), messages) );
       })
     } else {
